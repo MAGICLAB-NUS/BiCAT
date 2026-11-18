@@ -106,7 +106,7 @@ sup { font-size: .62em; line-height: 0; }
 .authors { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 26px; font-size: 18px; font-weight: 500; }
 .authors a { color: var(--ink); text-decoration: underline; text-decoration-color: transparent; text-underline-offset: 4px; text-decoration-thickness: 1.5px; transition: color .2s var(--ease), text-decoration-color .2s var(--ease); }
 .authors a:hover, .authors a:focus-visible { color: #3d9cf0; text-decoration-color: currentColor; }
-.affil { display: flex; align-items: center; justify-content: center; gap: 16px; margin: 18px 0 6px; color: var(--ink-2); font-size: 15px; }
+.affil { display: flex; align-items: center; justify-content: center; gap: 16px; margin: 14px 0 6px; color: var(--ink-2); font-size: 16px; font-weight: 500; letter-spacing: -0.01em; }
 .affil img { height: 46px; width: auto; }
 .affil-note { font-size: 13px; color: var(--ink-3); margin: 0; }
 .cta-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 34px; }

@@ -15,8 +15,9 @@ Source of the BiCAT project page. This is a plain static site (no build step), p
 | `static/models/yam/` | Compact YAM model for the demo, derived from MuJoCo Menagerie `i2rt_yam` (MIT, see `LICENSE` and `README.md`). |
 | `static/videos/bicat_teaser.mp4` | Teaser film at the top of the page (+ `bicat_teaser.jpg` poster). |
 | `static/videos/rollouts/` | Real-world rollouts, `<robot>_<task>_<method>.mp4`, method ∈ {bicat, oat, fast}; H.264 720p, no audio. Posters in `static/videos/posters/`. |
-| `static/images/` | Figures (teaser as vector SVG from `teaser.pdf`, method, RoboTwin tasks, analysis), logos, favicon. `teaser.png` is only the social-preview image. |
+| `static/images/` | Figures (teaser as vector SVG from `teaser.pdf`, method, RoboTwin tasks, analysis), MAGIC Lab logo, favicon. `teaser.png` is only the social-preview image. |
 | `static/paper-assets/` | The three figure PDFs linked from captions. |
+| `BiCAT.pdf` | The paper (linked from the "Paper" button), served at `/BiCAT/BiCAT.pdf`. |
 
 `source-materials/` (manuscript LaTeX, earlier versions of the page) is kept locally only and is listed in `.gitignore`.
 
@@ -44,5 +45,5 @@ git push magiclab gh-pages:website
 
 ## Still to fill in
 
-- Paper / arXiv link: the hero "Paper" button has `href="#"` (search for `paper-link` in `index.html`).
+- arXiv link: once available, point the "Paper" button (`id="paper-link"`) to arXiv or add a second button; it currently opens `BiCAT.pdf`.
 - Final BibTeX entry (current one is a placeholder `@misc`).
