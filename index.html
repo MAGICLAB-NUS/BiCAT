@@ -12,6 +12,7 @@
   <meta name="twitter:card" content="summary_large_image">
   <link rel="icon" href="./static/images/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="./static/css/index.css">
+  <script type="importmap">{ "imports": { "three": "./static/js/vendor/three.module.min.js" } }</script>
 </head>
 <body>
 <a class="skip-link" href="#main">Skip to content</a>
@@ -204,6 +205,11 @@
     <figure class="hero-video">
       <div class="hv-frame">
         <video id="hero-video" autoplay muted loop playsinline preload="auto" poster="./static/videos/bicat_teaser.jpg" src="./static/videos/bicat_teaser.mp4" aria-label="BiCAT teaser video: autonomous bimanual rollouts on YAM, SO-101 and Unitree G1, and how BiCAT gives each arm its own token stream"></video>
+        <div class="hv-scrub" id="hv-scrub" role="slider" tabindex="0" aria-label="Video position" aria-valuemin="0" aria-valuemax="0" aria-valuenow="0" aria-valuetext="0:00">
+          <div class="hv-track"><div class="hv-buffer"></div><div class="hv-fill"></div><div class="hv-thumb"></div></div>
+          <span class="hv-hover-time" aria-hidden="true">0:00</span>
+        </div>
+        <span class="hv-time" aria-hidden="true"><span id="hv-cur">0:00</span> / <span id="hv-dur">0:00</span></span>
         <div class="hv-controls">
           <button type="button" class="hv-btn" id="hv-play" aria-label="Pause video">
             <svg class="i-pause" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>
@@ -326,11 +332,13 @@
     </div>
     <p class="fig-cap"><strong>Overview of BiCAT.</strong> Top: mirror canonicalization flips the signed joints of the right arm and applies shared normalization; the shared encoder and causal cross-attention give each arm its partner's context before FSQ; the joint decoder reconstructs the canonical chunk. Bottom: a VLM predicts y<sup>L</sup>, then y<sup>R</sup>; the frozen decoder returns actions. <span class="l">Teal: left arm</span>; <span class="r">orange: right arm</span>. <a href="./static/paper-assets/method.pdf" target="_blank" rel="noopener">PDF ↗</a></p>
 
+
     <div class="steps">
-      <article class="step reveal">
+      <article class="step reveal is-expandable" role="button" tabindex="0" aria-expanded="false" aria-controls="step-panel-mirror">
         <div class="step-num">1</div>
         <h3>Mirror canonicalization</h3>
         <p>The right arm is flipped by an embodiment-specific sign vector <em>s</em>, and both arms share channel-wise normalization bounds. Mirrored motions, such as reaching inward, map to the same features in either arm.</p>
+        <span class="step-more"><span class="step-more-open">See it live on YAM</span><span class="step-more-close">Hide the demo</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></span>
       </article>
       <article class="step reveal">
         <div class="step-num">2</div>
@@ -342,6 +350,40 @@
         <h3>Two-block prediction</h3>
         <p>The VLA predicts all 8 <span class="l">left-arm</span> tokens in parallel, then all 8 <span class="r">right-arm</span> tokens conditioned on them: two decoding steps and 40.5 ms per action chunk.</p>
       </article>
+    </div>
+    <div class="step-panel" id="step-panel-mirror" aria-hidden="true">
+      <div class="step-panel-inner">
+        <button type="button" class="step-panel-close" aria-label="Close the demo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+        <div class="md" id="mirror-demo">
+          <div class="md-view">
+            <div class="md-stage">
+              <canvas aria-label="3D animation: two YAM arms; the right arm mirrors the left arm through the sign vector s"></canvas>
+              <span class="md-tag md-tag-l" data-md-label="left">Left arm · q<sup>L</sup></span>
+              <span class="md-tag md-tag-r" data-md-label="right">Right arm · q<sup>R</sup></span>
+              <span class="md-tag md-tag-p" data-md-label="plane">mirror plane</span>
+              <p class="md-status" aria-live="polite"></p>
+              <span class="md-hint">Drag to orbit</span>
+            </div>
+          </div>
+          <div class="md-panel">
+            <p class="md-kicker">Mirror canonicalization · Bimanual YAM</p>
+            <h3>Mirrored motion, identical coordinates.</h3>
+            <p class="md-text">The left arm follows a trajectory q<sup>L</sup>. Flipping the signed joints with <b>s</b> turns it into the mirrored motion of the right arm, so in BiCAT's canonical space both arms read the same: <b>s ⊙ q<sup>R</sup> = q<sup>L</sup></b>.</p>
+            <div class="md-controls">
+              <div class="md-seg" role="group" aria-label="How the right arm is driven">
+                <button type="button" data-md-mode="mirror" aria-pressed="true">Mirror · q<sup>R</sup> = s ⊙ q<sup>L</sup></button>
+                <button type="button" data-md-mode="copy" aria-pressed="false">Copy · q<sup>R</sup> = q<sup>L</sup></button>
+              </div>
+              <button type="button" class="md-play" data-md-play aria-pressed="false"><span>Pause</span></button>
+            </div>
+            <table class="md-table">
+              <thead><tr><th scope="col">Joint</th><th scope="col">q<sup>L</sup></th><th scope="col">q<sup>R</sup></th><th scope="col">s</th><th scope="col">s ⊙ q<sup>R</sup></th><th scope="col"><span class="sr-only">Match</span></th></tr></thead>
+              <tbody></tbody>
+            </table>
+            <p class="md-note"><span class="md-ring"></span>Rings mark the joints whose sign flips (q₁ base yaw, q₅ wrist yaw, q₆ wrist roll). s = (−1, 1, 1, 1, −1, −1, 1) as in the paper. YAM model: <a href="https://github.com/google-deepmind/mujoco_menagerie/tree/main/i2rt_yam" target="_blank" rel="noopener">MuJoCo Menagerie</a>, © i2rt robotics, MIT.</p>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </section>
@@ -498,5 +540,16 @@
 
 <div class="tooltip" id="tooltip" role="tooltip"></div>
 <script src="./static/js/main.js" defer></script>
+<script type="module">
+  // The YAM demo (three.js + model) loads only when a reader asks for it.
+  let mod = null, started = false;
+  const load = () => (mod = mod || import('./static/js/mirror-demo.js'));
+  const card = document.querySelector('[aria-controls="step-panel-mirror"]');
+  if (card) ['pointerenter', 'focus'].forEach((e) => card.addEventListener(e, load, { once: true }));
+  window.addEventListener('bicat:mirror-open', () => {
+    if (started) return; started = true;
+    load().then((m) => m.initMirrorDemo(document.getElementById('mirror-demo')));
+  });
+</script>
 </body>
 </html>

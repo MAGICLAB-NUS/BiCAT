@@ -1,41 +1,24 @@
 # BiCAT project website
 
-Website-only `gh-pages` checkout. Code lives at https://github.com/MAGICLAB-NUS/BiCAT.
+Source of the BiCAT project page. This is a plain static site (no build step), published from the
+`website` branch of https://github.com/MAGICLAB-NUS/BiCAT with GitHub Pages.
 
 ## Structure
 
-- `index.html` — single-page site (hero, rollout reel + key numbers, teaser, abstract, idea, method, real-world videos, baseline comparison, simulation charts, analysis, limitations, BibTeX).
-- `static/css/index.css` — all styles. Colours follow the paper: teal `#1F6676` = left arm, orange `#C96A2B` = right arm; baselines are neutral grey.
-- `static/js/main.js` — scroll reveals, visible-only video autoplay, task switcher for the side-by-side comparison, and the charts. **All numbers are hard-coded from the manuscript tables** (`sec/4_experiment.tex`): simulation table, efficiency table, ablation table, real-world table.
-- `static/videos/rollouts/` — web versions of the real-world rollouts (H.264, 720p tall, no audio, faststart), named `<robot>_<task>_<method>.mp4` with `method ∈ {bicat, oat, fast}`.
-- `static/videos/posters/` — first-frame posters for each clip.
-- `static/images/`, `static/paper-assets/` — figure previews and original PDFs.
-- `source-materials/previous-site/` — the earlier version of `index.html`, `index.css` and `favicon.svg`.
-
-## Video sources
-
-| Web file | Source |
+| Path | What it is |
 |---|---|
-| `so101_block_bicat` | `untitled folder 2/so101/block.MOV` |
-| `so101_block_{fast,oat}` | `untitled folder 3/so101/{FAST,OAT}_block.MOV` |
-| `g1_bottle_bicat` | `untitled folder 2/g1/bottle.MOV` |
-| `g1_bottle_{fast,oat}` | `untitled folder 3/g1/{FAST,OAT}_bottle.MOV` |
-| `g1_plate_bicat` (paper task "Bowl") | `untitled folder 2/g1/plate.MOV` |
-| `g1_plate_{fast,oat}` | `untitled folder 3/g1/{FAST,OAT}_plate.MOV` |
-| `yam_pen_bicat` | `untitled folder 2/yam/pen.mov` |
-| `yam_box_bicat` | `untitled folder 2/yam/box.mov` |
-| `yam_bottle_bicat` | `untitled folder 2/yam/IMG_4849.mov` |
-| `yam_{pen,box,bottle}_{fast,oat}` | `untitled folder 3/YAM/{FAST,OAT}_{pen,box,bottle}.mov` |
-| `ball_bicat`, `ball_fast` | `untitled folder 2/ball/` — converted but **not used on the page** |
+| `index.html` | The whole page. |
+| `static/css/index.css` | All styles. Paper colours: teal `#1F6676` = left arm, orange `#C96A2B` = right arm. |
+| `static/js/main.js` | Page behaviour: teaser player with scrubbable progress bar, cartoon kittens, real-world comparison player, charts, step cards. All numbers are copied from the paper's tables. |
+| `static/js/mirror-demo.js` | 3D mirror-canonicalization demo on Bimanual YAM (loads only when step 1 of the Method is opened). |
+| `static/js/vendor/` | three.js r160 and OrbitControls (MIT, see `LICENSE-three.js.txt`). |
+| `static/models/yam/` | Compact YAM model for the demo, derived from MuJoCo Menagerie `i2rt_yam` (MIT, see `LICENSE` and `README.md`). |
+| `static/videos/bicat_teaser.mp4` | Teaser film at the top of the page (+ `bicat_teaser.jpg` poster). |
+| `static/videos/rollouts/` | Real-world rollouts, `<robot>_<task>_<method>.mp4`, method ∈ {bicat, oat, fast}; H.264 720p, no audio. Posters in `static/videos/posters/`. |
+| `static/images/` | Figures (teaser as vector SVG from `teaser.pdf`, method, RoboTwin tasks, analysis), logos, favicon. `teaser.png` is only the social-preview image. |
+| `static/paper-assets/` | The three figure PDFs linked from captions. |
 
-Re-encode command used for every clip:
-
-```sh
-ffmpeg -i SRC -an -vf "scale=-2:720:flags=lanczos:out_range=tv,format=yuv420p" \
-  -c:v libx264 -preset veryfast -crf 24 -profile:v high -movflags +faststart OUT.mp4
-```
-
-Clips are stored at real-time speed; the page plays them at 2× by default and labels the speed. The comparison player has 1× / 2× / 4×.
+`source-materials/` (manuscript LaTeX, earlier versions of the page) is kept locally only and is listed in `.gitignore`.
 
 ## Local preview
 
@@ -44,11 +27,22 @@ cd '/Users/xuanwei/MAGIC Lab/BiCAT/BiCAT_website'
 python3 -m http.server 8765 --bind 127.0.0.1
 ```
 
-Open http://127.0.0.1:8765/ (videos need an HTTP server; opening the file directly may block them).
+Open http://127.0.0.1:8765/ (use a server: ES modules and videos do not work from `file://`).
+`python -m http.server` cannot serve byte ranges; the teaser player falls back to loading the
+video once so seeking still works. GitHub Pages supports ranges natively.
+
+## Publishing
+
+GitHub Pages redeploys automatically on every push **if** the repository is set to
+*Settings → Pages → Build and deployment → Source: Deploy from a branch → `website` / `(root)`*.
+The site is then served at https://magiclab-nus.github.io/BiCAT/. `.nojekyll` makes Pages serve the
+files as-is.
+
+```sh
+git push magiclab gh-pages:website
+```
 
 ## Still to fill in
 
-- Paper / arXiv link (the hero button shows "Paper · soon").
-- Final BibTeX (current entry is a placeholder `@misc`).
-
-No commit, push or deployment has been made from this update.
+- Paper / arXiv link: the hero "Paper" button has `href="#"` (search for `paper-link` in `index.html`).
+- Final BibTeX entry (current one is a placeholder `@misc`).

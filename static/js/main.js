@@ -83,6 +83,7 @@
   /* ---------------- hero teaser video ---------------- */
   (function () {
     var v = document.getElementById('hero-video'); if (!v) return;
+    var userPaused = false;
     var frame = v.parentNode, playBtn = document.getElementById('hv-play'), soundBtn = document.getElementById('hv-sound');
     function sync() {
       frame.classList.toggle('hv-paused', v.paused);
@@ -100,8 +101,75 @@
     });
     ['play', 'pause', 'volumechange'].forEach(function (e) { v.addEventListener(e, sync); });
     if (reduceMotion) v.pause();
+
+    /* progress bar: thin while it loops; hover / drag to scrub, then it keeps playing */
+    var scrub = document.getElementById('hv-scrub');
+    var fill = scrub.querySelector('.hv-fill'), thumb = scrub.querySelector('.hv-thumb'), buf = scrub.querySelector('.hv-buffer');
+    var hoverT = scrub.querySelector('.hv-hover-time'), curEl = document.getElementById('hv-cur'), durEl = document.getElementById('hv-dur');
+    var dragging = false, wasPlaying = false, blobSwapped = false, raf = 0;
+    function fmt(t) { t = Math.max(0, t || 0); var m = Math.floor(t / 60), s = Math.floor(t % 60); return m + ':' + (s < 10 ? '0' : '') + s; }
+    function paint(t) {
+      var d = v.duration || 0, f = d ? Math.min(1, t / d) : 0;
+      fill.style.width = (f * 100) + '%'; thumb.style.left = (f * 100) + '%';
+      curEl.textContent = fmt(t);
+      scrub.setAttribute('aria-valuenow', Math.round(t)); scrub.setAttribute('aria-valuetext', fmt(t) + ' of ' + fmt(d));
+    }
+    function paintBuffer() {
+      var d = v.duration; if (!d || !v.buffered.length) return;
+      buf.style.width = (v.buffered.end(v.buffered.length - 1) / d * 100) + '%';
+    }
+    function loop() { if (!dragging) paint(v.currentTime); raf = requestAnimationFrame(loop); }
+    v.addEventListener('loadedmetadata', function () { durEl.textContent = fmt(v.duration); scrub.setAttribute('aria-valuemax', Math.round(v.duration)); paint(v.currentTime); });
+    v.addEventListener('progress', paintBuffer);
+    v.addEventListener('play', function () { cancelAnimationFrame(raf); raf = requestAnimationFrame(loop); });
+    v.addEventListener('pause', function () { cancelAnimationFrame(raf); paint(v.currentTime); });
+
+    // Seeking needs HTTP range requests. Simple local servers (python -m http.server) don't
+    // support them, so if the video turns out not to be seekable we load it once as a blob.
+    function ensureSeekable() {
+      if (blobSwapped || !v.duration) return;
+      var s = v.seekable, ok = s.length && s.end(s.length - 1) >= v.duration - 0.5 && s.start(0) <= 0.5;
+      if (ok) return;
+      blobSwapped = true;
+      var t = v.currentTime, playing = !v.paused;
+      fetch(v.currentSrc || v.src).then(function (r) { return r.blob(); }).then(function (b) {
+        v.src = URL.createObjectURL(b);
+        v.addEventListener('loadedmetadata', function once() { v.removeEventListener('loadedmetadata', once); v.currentTime = t; if (playing) v.play().catch(function () {}); });
+      }).catch(function () {});
+    }
+    function timeAt(ev) {
+      var r = scrub.getBoundingClientRect(), f = Math.min(1, Math.max(0, (ev.clientX - r.left) / r.width));
+      return { f: f, t: f * (v.duration || 0) };
+    }
+    function seek(t) { try { v.currentTime = t; } catch (e) {} paint(t); }
+    scrub.addEventListener('pointerenter', ensureSeekable);
+    scrub.addEventListener('pointermove', function (ev) {
+      var p = timeAt(ev); hoverT.style.left = (p.f * 100) + '%'; hoverT.textContent = fmt(p.t);
+      if (dragging) seek(p.t);
+    });
+    scrub.addEventListener('pointerdown', function (ev) {
+      ev.preventDefault(); ev.stopPropagation(); ensureSeekable();
+      dragging = true; wasPlaying = !v.paused; frame.classList.add('scrubbing');
+      scrub.setPointerCapture(ev.pointerId);
+      var p = timeAt(ev); hoverT.style.left = (p.f * 100) + '%'; hoverT.textContent = fmt(p.t);
+      v.pause(); seek(p.t);
+    });
+    function endDrag() {
+      if (!dragging) return; dragging = false; frame.classList.remove('scrubbing');
+      if (wasPlaying || !userPaused) { var pr = v.play(); if (pr && pr.catch) pr.catch(function () {}); }
+    }
+    scrub.addEventListener('pointerup', endDrag);
+    scrub.addEventListener('pointercancel', endDrag);
+    scrub.addEventListener('click', function (ev) { ev.stopPropagation(); });
+    scrub.addEventListener('keydown', function (ev) {
+      var step = { ArrowLeft: -5, ArrowRight: 5, ArrowDown: -5, ArrowUp: 5 }[ev.key];
+      if (ev.key === 'Home') { ensureSeekable(); seek(0); ev.preventDefault(); }
+      else if (ev.key === 'End') { ensureSeekable(); seek(v.duration - 0.1); ev.preventDefault(); }
+      else if (step) { ensureSeekable(); seek(Math.min(v.duration, Math.max(0, v.currentTime + step))); ev.preventDefault(); }
+    });
+    if (v.readyState >= 1) { durEl.textContent = fmt(v.duration); scrub.setAttribute('aria-valuemax', Math.round(v.duration)); }
+    if (!v.paused) raf = requestAnimationFrame(loop);
     // pause when scrolled away (saves battery), resume when back unless the visitor paused it
-    var userPaused = false;
     playBtn.addEventListener('click', function () { userPaused = v.paused; });
     v.addEventListener('click', function () { userPaused = v.paused; });
     new IntersectionObserver(function (en) {
@@ -124,6 +192,44 @@
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(placeKits); else placeKits();
   window.addEventListener('load', placeKits);
   window.addEventListener('resize', placeKits);
+
+  /* ---------------- method step 1 opens the YAM mirror demo below the cards ---------------- */
+  (function () {
+    var card = document.querySelector('[aria-controls="step-panel-mirror"]');
+    var panel = document.getElementById('step-panel-mirror');
+    if (!card || !panel) return;
+    var inner = panel.querySelector('.step-panel-inner'), closeBtn = panel.querySelector('.step-panel-close');
+    function setOpen(open) {
+      if (open === panel.classList.contains('is-open')) return;
+      card.setAttribute('aria-expanded', open ? 'true' : 'false');
+      panel.setAttribute('aria-hidden', open ? 'false' : 'true');
+      if (open) {
+        panel.classList.add('is-open');
+        panel.style.height = inner.scrollHeight + 'px';
+        window.dispatchEvent(new Event('bicat:mirror-open'));
+        var done = function (e) {
+          if (e.target !== panel) return;
+          panel.removeEventListener('transitionend', done);
+          if (panel.classList.contains('is-open')) panel.style.height = 'auto';
+        };
+        panel.addEventListener('transitionend', done);
+        setTimeout(function () {
+          var r = panel.getBoundingClientRect();
+          if (r.bottom > window.innerHeight) window.scrollBy({ top: Math.min(r.top - 80, r.bottom - window.innerHeight + 24), behavior: reduceMotion ? 'auto' : 'smooth' });
+        }, 380);
+      } else {
+        panel.style.height = inner.scrollHeight + 'px';
+        void panel.offsetHeight;                 // commit the start height before animating to 0
+        panel.classList.remove('is-open');
+        panel.style.height = '0px';
+      }
+    }
+    card.addEventListener('click', function () { setOpen(!panel.classList.contains('is-open')); });
+    card.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setOpen(!panel.classList.contains('is-open')); }
+    });
+    closeBtn.addEventListener('click', function () { setOpen(false); card.focus({ preventScroll: true }); });
+  })();
 
   /* ---------------- tooltip ---------------- */
   var tip = document.getElementById('tooltip');
