@@ -207,12 +207,15 @@
         panel.classList.add('is-open');
         panel.style.height = inner.scrollHeight + 'px';
         window.dispatchEvent(new Event('bicat:mirror-open'));
+        var settle = function () { if (panel.classList.contains('is-open')) panel.style.height = 'auto'; };
         var done = function (e) {
           if (e.target !== panel) return;
           panel.removeEventListener('transitionend', done);
-          if (panel.classList.contains('is-open')) panel.style.height = 'auto';
+          settle();
         };
         panel.addEventListener('transitionend', done);
+        // no transition (reduced motion) means no transitionend: settle anyway
+        if (reduceMotion) settle(); else setTimeout(settle, 700);
         setTimeout(function () {
           var r = panel.getBoundingClientRect();
           if (r.bottom > window.innerHeight) window.scrollBy({ top: Math.min(r.top - 80, r.bottom - window.innerHeight + 24), behavior: reduceMotion ? 'auto' : 'smooth' });
