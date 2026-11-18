@@ -1,0 +1,38 @@
+# Template dataset config. Copy this file to configs/dataset/<your_name>.yaml,
+# fill in the fields, and select it with `dataset=<your_name>`.
+#
+# The dataset must be in LeRobot v3 format (meta/info.json, meta/stats.json,
+# data/, videos/). Actions are bimanual joint targets laid out as
+# [left arm joints..., left gripper, right arm joints..., right gripper].
+
+name: example                  # used in run names
+repo_id: local/example         # HF repo id; a `local/` prefix keeps everything offline
+root: ???                      # local dataset directory (contains meta/info.json)
+revision: null                 # optional dataset revision for Hub datasets
+hf_datasets_cache: ${oc.env:HF_DATASETS_CACHE,null}
+
+episodes: null                 # null = all episodes, or a list of episode ids
+exclude_episodes_file: null    # optional JSON list of episode ids to drop before the split
+action_stats_file: null        # optional JSON with replacement action normalization stats
+
+# Required when the dataset has several action fields (e.g. joint and EEF).
+action_key: null               # e.g. action_joint_angles
+# Observation features fed to the policy (state first, then cameras).
+# null keeps every observation feature in meta/info.json.
+observation_keys: null
+#  - observation.state
+#  - observation.images.cam_high
+#  - observation.images.cam_left_wrist
+#  - observation.images.cam_right_wrist
+
+video_backend: null            # null = auto-detect (e.g. pyav)
+bypass_force_cache_sync: true  # avoid a distributed-only forced cache sync at startup
+
+# To train on several LeRobot datasets with the same layout, add:
+# sources:
+#   - name: task_a
+#     repo_id: local/task_a
+#     root: /path/to/task_a
+#   - name: task_b
+#     repo_id: local/task_b
+#     root: /path/to/task_b

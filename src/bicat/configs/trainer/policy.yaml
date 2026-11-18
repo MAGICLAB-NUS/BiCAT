@@ -1,0 +1,15 @@
+# Policy trainer configuration: behavior only. Method-specific optimizer
+# values live in train_recipe/policy/*.
+defaults:
+  - common
+  - _self_
+
+_trainer_type: policy
+
+# Policy training uses structured family LRs supplied by train_recipe/policy/*.
+lrs: null
+
+# Reconstruction eval (action prediction MSE on val set)
+reconst_every: 1000          # every N steps
+max_reconst_batches: 100     # max val batches for reconstruction (null = all)
+reconst_action_mode: policy  # policy | zero | hold (repeat observation.state)

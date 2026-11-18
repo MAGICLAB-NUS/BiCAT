@@ -1,0 +1,6 @@
+defaults:
+  - bar/backbone@_here_: molmo
+  - bar/codec@_here_: bicat
+  - _self_
+
+name: bar_bicat_molmo
