@@ -17,7 +17,7 @@ Source of the BiCAT project page. This is a plain static site (no build step), p
 | `static/videos/rollouts/` | Real-world rollouts, `<robot>_<task>_<method>.mp4`, method ∈ {bicat, oat, fast}; H.264 720p, no audio. Posters in `static/videos/posters/`. |
 | `static/images/` | Figures (teaser as vector SVG from `teaser.pdf`, method, RoboTwin tasks, analysis), MAGIC Lab logo, favicon. `teaser.png` is only the social-preview image. |
 | `static/paper-assets/` | The three figure PDFs linked from captions. |
-| `BiCAT.pdf` | The paper (linked from the "Paper" button), served at `/BiCAT/BiCAT.pdf`. |
+| `BiCAT.pdf` | Local copy of the paper, served at `/BiCAT/BiCAT.pdf`. The "Paper" button links to arXiv: https://arxiv.org/abs/2611.23499. |
 
 `source-materials/` (manuscript LaTeX, earlier versions of the page) is kept locally only and is listed in `.gitignore`.
 
@@ -42,8 +42,3 @@ files as-is.
 ```sh
 git push magiclab gh-pages:website
 ```
-
-## Still to fill in
-
-- arXiv link: once available, point the "Paper" button (`id="paper-link"`) to arXiv or add a second button; it currently opens `BiCAT.pdf`.
-- Final BibTeX entry (current one is a placeholder `@misc`).
