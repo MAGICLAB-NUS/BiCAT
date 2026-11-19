@@ -9,7 +9,7 @@ Zhongyi Luo,
 
 National University of Singapore
 
-[Paper](https://magiclab-nus.github.io/BiCAT/BiCAT.pdf) · [Project Page](https://magiclab-nus.github.io/BiCAT/) · [BibTeX](#citation)
+[Paper](https://arxiv.org/abs/2611.23499) · [Project Page](https://magiclab-nus.github.io/BiCAT/) · [BibTeX](#citation)
 
 <!-- TODO: add a teaser figure, e.g. assets/teaser.png -->
 <!-- <img src="assets/teaser.png" width="90%" alt="BiCAT overview"> -->
@@ -206,12 +206,11 @@ scripts/robotwin/                RoboTwin 2.0 evaluation
 
 If you find BiCAT useful in your research, please cite:
 
-<!-- TODO: update the venue, year, and arXiv ID once available. -->
 ```bibtex
 @article{liu2026bicat,
   title   = {BiCAT: Bimanual Coordination Action Tokenization},
   author  = {Liu, Xuanwei and Cao, Guipu and Luo, Zhongyi and Duan, Jiafei},
-  journal = {arXiv preprint arXiv:XXXX.XXXXX},
+  journal = {arXiv preprint arXiv:2611.23499},
   year    = {2026}
 }
 ```
