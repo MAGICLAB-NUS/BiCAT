@@ -207,11 +207,14 @@ scripts/robotwin/                RoboTwin 2.0 evaluation
 If you find BiCAT useful in your research, please cite:
 
 ```bibtex
-@article{liu2026bicat,
-  title   = {BiCAT: Bimanual Coordination Action Tokenization},
-  author  = {Liu, Xuanwei and Cao, Guipu and Luo, Zhongyi and Duan, Jiafei},
-  journal = {arXiv preprint arXiv:2611.23499},
-  year    = {2026}
+@misc{liu2026bicat,
+  title={BiCAT: Bimanual Coordination Action Tokenization},
+  author={Xuanwei Liu and Guipu Cao and Zhongyi Luo and Jiafei Duan},
+  year={2026},
+  eprint={2611.23499},
+  archivePrefix={arXiv},
+  primaryClass={cs.RO},
+  url={https://arxiv.org/abs/2611.23499}
 }
 ```
 
